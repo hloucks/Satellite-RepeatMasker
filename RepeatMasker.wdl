@@ -1,27 +1,33 @@
 version 1.0
+# WDL ReapeatMasker workflow adapted from 
+# https://github.com/ChaissonLab/SegDupAnnotation/blob/master/RepeatMaskGenome.snakefile#L1
 
 workflow RepeatMasker{
     input {
-         File fastq
+         File fasta
+         File t2tLib
         
          Int threadCount=20
          Int preemptible = 1
      }
 
-    call maskReads {
+
+    call maskContig {
         input:
-            fastq=fastq,
+            fasta=fasta,
 
             preemptible=preemptible,
             threadCount=threadCount
     }
 
+
     output {
-        File outFile = maskReads.outFile
+        File outFile1 = maskContig.outFile1
+        #File outFile2 = SpecialMaskContig.outFile2
     }
 
     parameter_meta {
-        # fastq: "RepeatMasker"
+         fasta: "RepeatMasker run on Dfam datatase and CHM13 lib"
     }
     meta {
         author: "Hailey Loucks"
@@ -29,9 +35,9 @@ workflow RepeatMasker{
     }
 }
 
-task maskReads {
+task maskContig {
     input {
-        File fastq
+        File fasta
 
         Int memSizeGB = 48
         Int preemptible
@@ -45,13 +51,14 @@ task maskReads {
         set -u
         set -o xtrace
 
-        RepeatMasker > out.txt
+        RepeatMasker -s -e ncbi -gff ~{fasta}
+        echo "maskContig" > maskContig.txt
 
 
     >>>
 
     output {
-         File outFile = "out.txt"
+         File outFile1 = "maskContig.txt"
     }
 
     runtime {

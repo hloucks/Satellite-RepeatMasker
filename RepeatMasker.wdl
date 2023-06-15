@@ -52,8 +52,6 @@ task maskContig {
         set -o xtrace
 
         RepeatMasker -s -e ncbi -gff ~{fasta}
-        echo "maskContig" > maskContig.txt
-
 
     >>>
 
